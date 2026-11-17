@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$HOME/alp"
+APP="$ROOT/app"
+BACKUPS="$HOME/alp-backups"
+
+case "${1:-check}" in
+  check)
+    echo "=== ALP SYSTEM CHECK ==="
+    python3 --version
+    echo "--- Projektdateien ---"
+    ls -lah "$APP"
+    echo "--- Git ---"
+    git -C "$ROOT" status --short --branch || true
+    echo "--- Cloud Run ---"
+    gcloud run services describe alp-api \
+      --region europe-west1 \
+      --format="value(status.url)" || true
+    ;;
+  backup)
+    mkdir -p "$BACKUPS"
+    FILE="$BACKUPS/alp-$(date +%Y%m%d-%H%M%S).tar.gz"
+    tar czf "$FILE" \
+      --exclude='alp/.git' \
+      --exclude='alp/venv' \
+      --exclude='alp/.venv' \
+      --exclude='alp/.env' \
+      --exclude='alp/**/__pycache__' \
+      -C "$HOME" alp
+    echo "Backup erstellt: $FILE"
+    ;;
+  test)
+    cd "$APP"
+    python3 -m compileall -q .
+    python3 -m unittest discover -v
+    ;;
+  all)
+    "$0" backup
+    "$0" check
+    "$0" test
+    ;;
+  *)
+    echo "Befehle: check | backup | test | all"
+    exit 1
+    ;;
+esac

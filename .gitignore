@@ -1,0 +1,24 @@
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+alp-backups/
+
+# ALP backups and temporary files
+*.backup
+*.backup*
+*.sicherung
+*.bak
+*.tmp
+.*.swp
+.DS_Store
+lade
