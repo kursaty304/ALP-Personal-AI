@@ -55,7 +55,9 @@ Sicherheit:
 """
 
 
+from app.cloud_developer import router as cloud_developer_router
 app = FastAPI(title="ALP API", version="1.0.0")
+app.include_router(cloud_developer_router)
 
 
 class ChatMessage(BaseModel):
@@ -388,3 +390,13 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=int(os.getenv("PORT", "8080"))
     )
+
+
+# ALP_DASHBOARD_ROUTE
+from fastapi.responses import HTMLResponse
+from pathlib import Path as _ALPPath
+
+@app.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
+async def alp_dashboard():
+    page = _ALPPath(__file__).with_name("dashboard.html")
+    return HTMLResponse(page.read_text(encoding="utf-8"))
